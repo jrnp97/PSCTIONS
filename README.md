@@ -3,6 +3,32 @@
 ![Coverage Status](https://img.shields.io/badge/coverage-96%25-green)
 
 *coverage % from `$coverage report`*
+```
+web_1  | Coverage Report....
+web_1  | Name                                      Stmts   Miss  Cover
+web_1  | -------------------------------------------------------------
+web_1  | manage.py                                    12      2    83%
+web_1  | prescription/__init__.py                      0      0   100%
+web_1  | prescription/admin.py                         1      0   100%
+web_1  | prescription/api/__init__.py                  0      0   100%
+web_1  | prescription/api/serializers.py              45      3    93%
+web_1  | prescription/api/tests.py                    86      0   100%
+web_1  | prescription/api/urls.py                      9      0   100%
+web_1  | prescription/api/viewsets.py                 16      0   100%
+web_1  | prescription/exceptions.py                    2      0   100%
+web_1  | prescription/migrations/0001_initial.py       5      0   100%
+web_1  | prescription/migrations/__init__.py           0      0   100%
+web_1  | prescription/models.py                       20      1    95%
+web_1  | prescription/tests.py                        72      0   100%
+web_1  | prescription/urls.py                          4      0   100%
+web_1  | prescription/utils.py                        89     10    89%
+web_1  | psction/__init__.py                           0      0   100%
+web_1  | psction/settings.py                          26      0   100%
+web_1  | psction/urls.py                               5      0   100%
+web_1  | -------------------------------------------------------------
+web_1  | TOTAL                                       392     16    96%
+
+```
 
 ## Development
 
