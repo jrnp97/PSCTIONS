@@ -13,7 +13,6 @@ from prescription.utils import PatientExternalService
 from prescription.utils import PhysicianExternalService
 
 
-
 class TestApiPrescriptionEndpoint(TestCase):
     """ Test for tests /prescriptions endpoint cases """
     ENDPOINT = '/prescriptions'
