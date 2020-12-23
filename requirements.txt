@@ -1,3 +1,5 @@
 Django==3.1.4
 coverage==5.3.1
 djangorestframework==3.12.2
+PyYAML==5.3.1
+uritemplate==3.0.1

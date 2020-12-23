@@ -17,7 +17,17 @@ from django.contrib import admin
 from django.urls import path
 from django.urls import include
 
+from django.views.generic import TemplateView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', TemplateView.as_view(
+        template_name='index.html',
+        extra_context={
+            'main_title': 'Prescriptions Service',
+            'usage_url': 'prescription_app:prescription_api:doc',
+            'github_url': 'https://github.com/jrnp97/PSCTIONS',
+        },
+    )),
     path('', include('prescription.urls', namespace='prescription_app')),
 ]

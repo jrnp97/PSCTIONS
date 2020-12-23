@@ -16,6 +16,13 @@ else
 	exit 1
 fi
 
+if python $WORK_DIR/manage.py collectstatic --no-input; then
+  echo 'Static Configured!!'
+else
+	echo 'Error Configure Static :/'
+	exit 1
+fi
+
 echo 'Coverage Report....'
 coverage report
 

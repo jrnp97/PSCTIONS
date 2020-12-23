@@ -1,0 +1,82 @@
+openapi: 3.0.2
+info:
+  title: ''
+  version: ''
+paths:
+  /prescriptions:
+    post:
+      operationId: createPrescription
+      description: Endpoint to create Prescription
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Prescription'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrescriptionResponse'
+          description: ''
+      tags:
+      - prescriptions
+components:
+  schemas:
+    Prescription:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        clinic:
+          type: object
+          properties:
+            id:
+              type: integer
+        physician:
+          type: object
+          properties:
+            id:
+              type: integer
+        patient:
+          type: object
+          properties:
+            id:
+              type: integer
+        text:
+          type: string
+          maxLength: 500
+      required:
+      - clinic
+      - physician
+      - patient
+      - text
+    PrescriptionResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+              readOnly: true
+            clinic:
+              type: object
+              properties:
+                id:
+                  type: integer
+            physician:
+              type: object
+              properties:
+                id:
+                  type: integer
+            patient:
+              type: object
+              properties:
+                id:
+                  type: integer
+            text:
+              type: string
+              maxLength: 500

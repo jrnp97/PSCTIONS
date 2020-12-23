@@ -16,7 +16,7 @@ $ docker-compose up
 ...that will build and make avaiable the service
 ```
 
-Go to http://127.0.0.1:8000/ and enjoy!
+Go to http://127.0.0.1:8000/ and enjoy, you will a index.html page!
 
 ## Api Details
 
