@@ -2,7 +2,7 @@ from rest_framework.routers import SimpleRouter
 
 from prescription.api.viewsets import PrescriptionViewSet
 
-router = SimpleRouter()
+router = SimpleRouter(trailing_slash=False)
 router.register(prefix='prescriptions', viewset=PrescriptionViewSet)
 
 app_name = 'prescription_api'

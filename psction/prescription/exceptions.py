@@ -1,10 +1,9 @@
 """ Module to define custom exceptions """
-from urllib.error import HTTPError
 
 
-class ExternalApiError(HTTPError):
+class ExternalApiError(Exception):
     """ Exception to segment external api conexion error """
 
 
-class ExternalResourceNotFound(ExternalApiError):
+class ExternalResourceNotFound(Exception):
     """ Exception to segment external api with 404 response """

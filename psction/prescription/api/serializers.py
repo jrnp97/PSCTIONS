@@ -1,19 +1,16 @@
 """ Module to define api serializer to define api data sctructure and validations """
-import sys
-
 from django.conf import settings
 
 from rest_framework import serializers
+from rest_framework.utils.serializer_helpers import ReturnDict
 
 from prescription.models import Prescription
 
-from prescription.exceptions import ExternalApiError
-from prescription.exceptions import ExternalResourceNotFound
-from prescription.utils import ExternalServiceConnector
+from prescription.utils import ExternalServiceContext
 
 
 class PrescriptionSerializer(serializers.Serializer):
-    """ Class defining Prescription api structure """
+    """ Class defining Prescription api schema """
     id = serializers.IntegerField(read_only=True)
     clinic = serializers.DictField(
         allow_empty=False,
@@ -33,35 +30,67 @@ class PrescriptionSerializer(serializers.Serializer):
         max_length=500,
     )
 
-    def external_request(self, service, endpoint, method='GET', data=None):
-        manager = ExternalServiceConnector(
+    def is_valid(self, raise_exception=False):
+        is_valid = super().is_valid(raise_exception=False)
+        if not is_valid and raise_exception and self.errors.__len__() > 1:
+            raise serializers.ValidationError(
+                detail={
+                    'error': {
+                        'message': 'malformed request',
+                        'code': '01',
+                    }
+                },
+            )
+        elif not is_valid and raise_exception:
+            error = list(self.errors.values())[0]
+            raise serializers.ValidationError(ReturnDict(error, serializer=self))
+        return is_valid
+
+    @staticmethod
+    def external_request(service, endpoint, method='GET', data=None):
+        manager = ExternalServiceContext(
             service=service,
             method=method,
             endpoint=endpoint,
             data=data,
         )
+        return manager.do_request()
+
+    @staticmethod
+    def get_metric_data(validated_data):
         try:
-            return manager.do_request()
-        except ExternalResourceNotFound:
-            raise serializers.ValidationError(f'{service} not found.')
-        except ExternalApiError:
-            raise serializers.ValidationError(f'{service} is not available.')
+            return {
+                'clinic_id': validated_data['clinic']['id'] if validated_data.get('clinic') else None,
+                'clinic_name': validated_data['clinic']['name'] if validated_data.get('clinic') else None,
+                'physician_id': validated_data['physician']['id'],
+                'physician_name': validated_data['physician']['name'],
+                'physician_crm': validated_data['physician']['crm'],
+                'patient_id': validated_data['patient']['id'],
+                'patient_name': validated_data['patient']['name'],
+                'patient_email': validated_data['patient']['email'],
+                'patient_phone': validated_data['patient']['phone'],
+            }
+        except KeyError:
+            raise serializers.ValidationError(
+                detail={
+                    'error': {
+                        'message': 'malformed external resources data',
+                        'code': '07',
+                    },
+                },
+            )
 
     def validate_clinic(self, value):
         if 'id' not in value:
             return None
-        try:
-            return self.external_request(
-                service=settings.EXTERNAL_CLINIC,
-                endpoint=f'/clinics/{value["id"]}/',
-            )
-        except serializers.ValidationError:
-            return None
+        return self.external_request(
+            service=settings.EXTERNAL_CLINIC,
+            endpoint=f'/clinics/{value["id"]}/',
+        )
 
     def validate_physician(self, value):
         if 'id' not in value:
             raise serializers.ValidationError('')
-
         return self.external_request(
             service=settings.EXTERNAL_PHYSICIAN,
             endpoint=f'/physicians/{value["id"]}/',
@@ -76,26 +105,12 @@ class PrescriptionSerializer(serializers.Serializer):
         )
 
     def create(self, validated_data):
-        try:
-            metrics_data = {
-                'clinic_id': validated_data['clinic']['id'],
-                'clinic_name': validated_data['clinic']['name'],
-                'physician_id': validated_data['physician']['id'],
-                'physician_name': validated_data['physician']['name'],
-                'physician_crm': validated_data['physician']['crm'],
-                'patient_id': validated_data['patient']['id'],
-                'patient_name': validated_data['patient']['name'],
-                'patient_email': validated_data['patient']['email'],
-                'patient_phone': validated_data['patient']['phone'],
-            }
-            _metric = self.external_request(
-                service=settings.EXTERNAL_METRIC,
-                endpoint=f'/metrics/',
-                method='POST',
-                data=metrics_data,
-            )
-        except KeyError:
-            raise serializers.ValidationError('Bad formed external resources data')
+        _metric = self.external_request(
+            service=settings.EXTERNAL_METRIC,
+            endpoint=f'/metrics/',
+            method='POST',
+            data=self.get_metric_data(validated_data),
+        )
 
         request_data = {
             'clinic_id': validated_data['clinic']['id'],
